@@ -5,9 +5,13 @@ using UnityEngine.InputSystem;
 
 public class BallHandler : MonoBehaviour
 {
-[SerializeField] private Rigidbody2D currentBallRigidbody;// 1. Campo Para Identificar Cuerpo Rigido Ball.
+    [SerializeField] private Rigidbody2D currentBallRigidbody;
+    [SerializeField] private SpringJoint2D currentBallSprintJoint;
+    [SerializeField] private float detachDelay;
 
     private Camera mainCamera;
+    private bool isDragging;
+    
 
     // Start is called before the first frame update
     void Start()
@@ -18,18 +22,41 @@ public class BallHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(!Touchscreen.current.primaryTouch.press.isPressed)
+        if (currentBallRigidbody == null) { return; }
+
+        if (!Touchscreen.current.primaryTouch.press.isPressed)
         {
-            currentBallRigidbody.isKinematic = false; // 3. Desactivar la propiedad "Kinematic" con el Input/ Toque.
+            if (isDragging)
+            {
+                LaunchBall();
+            }
+
+            isDragging = false;
+
             return;
         }
 
-        currentBallRigidbody.isKinematic = true; //4. Propiedad "Kinematic" por defecto.
+        isDragging = true;
+        currentBallRigidbody.isKinematic = true;
 
         Vector2 touchPosition = Touchscreen.current.primaryTouch.position.ReadValue();
 
         Vector3 worldPosition = mainCamera.ScreenToWorldPoint(touchPosition);
 
-        currentBallRigidbody.position = worldPosition; //2. Determinar Posicion Objeto a Posicion del Mundo.
+        currentBallRigidbody.position = worldPosition;
+    }
+
+    private void LaunchBall()
+    {
+        currentBallRigidbody.isKinematic = false;
+        currentBallRigidbody = null;
+
+        Invoke(nameof(DetachBall), detachDelay);
+    }
+
+    private void DetachBall()
+    {
+        currentBallSprintJoint.enabled = false;
+        currentBallSprintJoint = null;
     }
 }
