@@ -46,6 +46,22 @@ public class BallHandler : MonoBehaviour
         currentBallRigidbody.position = worldPosition;
     }
 
+    void OnMouseDown()
+    {
+        isDragging = true;
+        currentBallRigidbody.isKinematic = true;
+    }
+
+    void OnMouseUp()
+    {
+        if (isDragging)
+        {
+            LaunchBall();
+        }
+
+        isDragging = false;
+    }
+
     private void LaunchBall()
     {
         currentBallRigidbody.isKinematic = false;
