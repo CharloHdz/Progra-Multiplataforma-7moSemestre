@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;  // Necesario para usar LINQ
+using System.Linq;
 
 public class Lienzo : MonoBehaviour
 {
@@ -19,7 +19,7 @@ public class Lienzo : MonoBehaviour
         Sort();
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            PlayGame();
+            StartCoroutine(PlayGame());
         }
     }
 
@@ -29,12 +29,15 @@ public class Lienzo : MonoBehaviour
         ObjectID = ObjectID.OrderByDescending(obj => obj.transform.position.y).ToList();
     }
 
-    public void PlayGame()
+    public IEnumerator PlayGame()
     {
         for (int i = 0; i < ObjectID.Count; i++)
         {
+            // Llamar a la instrucción de cada objeto
             ObjectID[i].GetComponent<ObjectID>().Instruction();
-            WaitForSeconds wait = new WaitForSeconds(1);
+
+            // Esperar 1 segundo antes de pasar al siguiente
+            yield return new WaitForSeconds(0.2f);
         }
     }
 
@@ -43,11 +46,22 @@ public class Lienzo : MonoBehaviour
         if (other.gameObject.tag == "ObjectID")
         {
             ObjectID.Add(other.gameObject);
-            for (int i = 0; i < ObjectID.Count; i++)
-            {
-                print(ObjectID[i].GetComponent<ObjectID>().ID);
-                WaitForSeconds wait = new WaitForSeconds(1);
-            }
+            Sort(); // Volvemos a ordenar al agregar
+
+            // Iniciar una corutina para mostrar el ID de cada objeto con un retraso
+            StartCoroutine(PrintObjectIDs());
+        }
+    }
+
+    IEnumerator PrintObjectIDs()
+    {
+        for (int i = 0; i < ObjectID.Count; i++)
+        {
+            // Imprimir el ID del objeto
+            print(ObjectID[i].GetComponent<ObjectID>().ID);
+
+            // Esperar 1 segundo antes de imprimir el siguiente
+            yield return new WaitForSeconds(1);
         }
     }
 
@@ -59,4 +73,5 @@ public class Lienzo : MonoBehaviour
         }
     }
 }
+
 

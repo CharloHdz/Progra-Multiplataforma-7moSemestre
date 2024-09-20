@@ -8,8 +8,8 @@ public class ObjectID : MonoBehaviour
 {
     public ObjectID Instance;
     public int ID;
-    public GameObject Player;
     public Variable variable;
+    public int dist;
     void Awake()
     {
         Instance = this;
@@ -18,7 +18,6 @@ public class ObjectID : MonoBehaviour
     void Start()
     {
         ID = Random.Range(0, 100);
-        Player = GameObject.Find("Player");
     }
 
     // Update is called once per frame
@@ -40,21 +39,31 @@ public class ObjectID : MonoBehaviour
     {
         Vector2 mousePosition = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition) - difference;
 
-        // Si el objeto tiene un padre, convertimos la posición del mouse al espacio local del padre
-        if (transform.parent != null)
-        {
-            // Convertimos la posición mundial a la posición local del padre
-            transform.localPosition = transform.parent.InverseTransformPoint(new Vector3(mousePosition.x, mousePosition.y, transform.position.z));
-        }
-        else
-        {
             // Si no tiene padre, simplemente actualizamos la posición en el espacio mundial
             transform.position = new Vector3(mousePosition.x, mousePosition.y, transform.position.z);
-        }
     }
 
     public void Instruction(){
-        Player.transform.position = new Vector3(Random.Range(-10, 10), Random.Range(-10, 10), 0);
+        switch(variable){
+            case Variable.Saltar:
+                Player.Instance.PlayerRB.AddForce(transform.up * 100);
+            break;
+            case Variable.Agacharse:
+                print("Agachar");
+            break;
+            case Variable.Avanzar:
+                Rigidbody2D rb = Player.Instance.PlayerRB;
+                if (rb != null)
+                {
+                    rb.AddForce(Vector2.right * 200);
+                    print("Avanzar");
+                }
+                print("Avanzar");
+            break;
+            case Variable.Disparar:
+                print("Disparar");
+            break;
+        }
     }
 }
 
