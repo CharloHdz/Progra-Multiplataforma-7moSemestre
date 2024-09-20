@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Lienzo
+  - ObjectID
   layers:
   - Default
   - TransparentFX

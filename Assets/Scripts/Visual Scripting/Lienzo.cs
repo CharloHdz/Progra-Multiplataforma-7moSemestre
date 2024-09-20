@@ -1,35 +1,62 @@
-using System.Xml.Serialization;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using System.Linq;  // Necesario para usar LINQ
 
-public class Lienzo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class Lienzo : MonoBehaviour
 {
-    //UI Stuff
-    [SerializeField] Animator anim;
-    public bool OnHover;
+    public List<GameObject> ObjectID;
 
-    // funcionalidad
     // Start is called before the first frame update
     void Start()
     {
-        anim = GetComponent<Animator>();
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        Sort();
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            PlayGame();
+        }
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public void Sort()
     {
-        anim.SetTrigger("Open");
+        // Ordenar los objetos por su posición en el eje Y de mayor a menor (del objeto más alto al más bajo)
+        ObjectID = ObjectID.OrderByDescending(obj => obj.transform.position.y).ToList();
     }
 
-    public void OnPointerExit(PointerEventData eventData)
+    public void PlayGame()
     {
-        anim.SetTrigger("Close");
+        for (int i = 0; i < ObjectID.Count; i++)
+        {
+            ObjectID[i].GetComponent<ObjectID>().Instruction();
+            WaitForSeconds wait = new WaitForSeconds(1);
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.tag == "ObjectID")
+        {
+            ObjectID.Add(other.gameObject);
+            for (int i = 0; i < ObjectID.Count; i++)
+            {
+                print(ObjectID[i].GetComponent<ObjectID>().ID);
+                WaitForSeconds wait = new WaitForSeconds(1);
+            }
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.gameObject.tag == "ObjectID")
+        {
+            ObjectID.Remove(other.gameObject);
+        }
     }
 }
+
