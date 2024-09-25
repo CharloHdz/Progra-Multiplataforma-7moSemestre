@@ -1,7 +1,9 @@
+using Microsoft.Unity.VisualStudio.Editor;
+using UnityEditor.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ObjectID_UI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class ObjectID_UI : MonoBehaviour, IPointerDownHandler, IDragHandler, IEndDragHandler
 {
     public int ID;
     private RectTransform rectTransform;
@@ -10,6 +12,7 @@ public class ObjectID_UI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler
 
     public Variable1 var;
     private Vector2 originalPosition;
+    DeleteArea_UI deleteArea;
     // Start is called before the first frame update
     void Start()
     {
@@ -17,6 +20,26 @@ public class ObjectID_UI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler
         canvas = GetComponentInParent<Canvas>();
         lienzoUI = FindObjectOfType<Lienzo_UI>();  // Obtenemos referencia al Lienzo en la escena
         originalPosition = rectTransform.anchoredPosition;  // Guardamos la posición original
+        deleteArea = FindObjectOfType<DeleteArea_UI>();
+    }
+
+    void Update()
+    {
+        // Si el objeto está dentro del panel, agregarlo a la lista, si no, removerlo
+        if (lienzoUI.IsObjectInsidePanel(gameObject))
+        {
+            if (!lienzoUI.ObjectIDList.Contains(gameObject))
+            {
+                lienzoUI.ObjectIDList.Add(gameObject);
+            }
+        }
+        else
+        {
+            if (lienzoUI.ObjectIDList.Contains(gameObject))
+            {
+                lienzoUI.ObjectIDList.Remove(gameObject);
+            }
+        }
     }
 
     // Evento cuando se empieza a arrastrar el objeto
@@ -25,40 +48,33 @@ public class ObjectID_UI : MonoBehaviour, IPointerDownHandler, IBeginDragHandler
         originalPosition = rectTransform.anchoredPosition;  // Guardamos la posición cuando empieza el arrastre
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        Debug.Log("Comenzó a arrastrar el objeto con ID: " + ID);
-    }
-
     public void OnDrag(PointerEventData eventData)
     {
         // Movemos el objeto según la posición del puntero
         Vector2 movePos;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.transform as RectTransform, eventData.position, eventData.pressEventCamera, out movePos);
         rectTransform.anchoredPosition = movePos;
+
+        if(deleteArea.IsObjectInsidePanel(gameObject)){
+            deleteArea.gameObject.SetActive(true);
+        } else {
+            deleteArea.gameObject.SetActive(false);
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        Debug.Log("Terminó de arrastrar el objeto con ID: " + ID);
-
-        // Verificamos si el objeto está dentro del área del panel (lienzo)
-        if (lienzoUI.IsObjectInsidePanel(gameObject))
+        // Verificar si el objeto está dentro del panel
+        if (deleteArea.IsObjectInsidePanel(gameObject))
         {
-            Debug.Log("El objeto " + ID + " ha sido soltado dentro del área del lienzo.");
-            lienzoUI.ObjectIDList.Add(gameObject);  // Añadir el objeto al Lienzo si está dentro del área
-        }
-        else
-        {
-            Debug.Log("El objeto " + ID + " está fuera del área del lienzo.");
+            // Llamar a la instrucción del objeto
+            Destroy(gameObject);
         }
     }
 
     // Método para ejecutar una instrucción
     public void Instruction()
     {
-        Debug.Log("Ejecutando instrucción del objeto con ID: " + ID);
-        // Aquí puedes implementar las instrucciones específicas para cada objeto
 
         switch(var){
             case Variable1.Saltar:

@@ -20,12 +20,34 @@ public class Lienzo_UI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+
+        //Revisar si el objeto está dentro del panel
+        for (int i = 0; i < ObjectIDList.Count; i++)
         {
-            StartCoroutine(PlayGame());
+            if (!IsObjectInsidePanel(ObjectIDList[i]))
+            {
+                ObjectIDList.RemoveAt(i);
+            }
         }
 
+        //Ordena la lista de objetos por su altura
         Sort();
+
+    }
+    // Método para correr el script que contiene el lienzo 
+    public IEnumerator PlayGame()
+    {
+        for (int i = 0; i < ObjectIDList.Count; i++)
+        {
+            // Llamar a la instrucción de cada objeto si está dentro del panel
+            if (IsObjectInsidePanel(ObjectIDList[i]))
+            {
+                ObjectIDList[i].GetComponent<ObjectID_UI>().Instruction();
+            }
+
+            // Esperar 1 segundo antes de pasar al siguiente
+            yield return new WaitForSeconds(1);
+        }
     }
 
     void Sort(){
@@ -42,21 +64,6 @@ public class Lienzo_UI : MonoBehaviour
         return RectTransformUtility.RectangleContainsScreenPoint(panelRectTransform, objRectTransform.position, canvas.worldCamera);
     }
 
-    // Método para manejar el comportamiento del juego
-    public IEnumerator PlayGame()
-    {
-        for (int i = 0; i < ObjectIDList.Count; i++)
-        {
-            // Llamar a la instrucción de cada objeto si está dentro del panel
-            if (IsObjectInsidePanel(ObjectIDList[i]))
-            {
-                ObjectIDList[i].GetComponent<ObjectID_UI>().Instruction();
-            }
-
-            // Esperar 1 segundo antes de pasar al siguiente
-            yield return new WaitForSeconds(1);
-        }
-    }
 }
 
 
